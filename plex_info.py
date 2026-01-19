@@ -714,6 +714,15 @@ class PlexTools:
             for show in library.all():
                 for episode in show.episodes():
                     items.append(episode)
+        elif library.type == 'artist':
+            # Music library - get all tracks
+            for artist in library.all():
+                for album in artist.albums():
+                    for track in album.tracks():
+                        items.append(track)
+        else:
+            # Other library types - try to get all items
+            items = library.all()
 
         logger.info(f"Scanning {len(items)} items...")
 
@@ -727,14 +736,26 @@ class PlexTools:
             watch_info = self.get_watch_info(item)
 
             item_name = item.title
+            item_type = 'other'
+
             if isinstance(item, Episode):
                 item_name = f"{item.grandparentTitle} - S{item.seasonNumber:02d}E{item.index:02d} - {item.title}"
+                item_type = 'episode'
+            elif library.type == 'movie':
+                item_type = 'movie'
+            elif library.type == 'artist':
+                # Music track - show artist - album - title
+                try:
+                    item_name = f"{item.grandparentTitle} - {item.parentTitle} - {item.title}"
+                    item_type = 'track'
+                except:
+                    pass
 
             plex_url = f"{self.plex._baseurl}/web/index.html#!/server/{self.plex.machineIdentifier}/details?key=/library/metadata/{item.ratingKey}"
 
             library_items.append({
                 'title': item_name,
-                'type': 'episode' if isinstance(item, Episode) else 'movie',
+                'type': item_type,
                 'url': plex_url,
                 'rating_key': item.ratingKey,
                 'filepath': filepath,
@@ -1033,7 +1054,6 @@ For more information, see the README.md file.
                 document.getElementById('no-data-error').style.display = 'none';
 
                 // Populate interface
-                populateServerInfo();
                 populateNavigation();
                 populateContent();
 
@@ -1056,7 +1076,6 @@ For more information, see the README.md file.
             document.getElementById('no-data-error').style.display = 'none';
 
             // Populate interface
-            populateServerInfo();
             populateNavigation();
             populateContent();
         }'''

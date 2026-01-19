@@ -344,10 +344,6 @@
         <aside class="sidebar" id="sidebar">
             <h1>Plex Info</h1>
 
-            <div class="server-info" id="server-info">
-                <p><strong>Updated:</strong> <span id="data-timestamp">-</span></p>
-            </div>
-
             <nav>
                 <ul id="library-nav">
                     <li><a onclick="showSection('overview')">Overview</a></li>
@@ -420,7 +416,6 @@
                 document.getElementById('no-data-error').style.display = 'none';
 
                 // Populate interface
-                populateServerInfo();
                 populateNavigation();
                 populateContent();
 
@@ -429,11 +424,6 @@
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('no-data-error').style.display = 'block';
             }
-        }
-
-        // Populate server info
-        function populateServerInfo() {
-            document.getElementById('data-timestamp').textContent = plexData.timestamp || '-';
         }
 
         // Populate navigation
@@ -478,6 +468,18 @@
             let totalItems = 0;
             let totalWithSubs = 0;
             let totalWithoutSubs = 0;
+            let totalSize = 0;
+            let totalDuration = 0;
+
+            // Quality & Technical stats
+            let resolutionStats = {};
+            let videoCodecStats = {};
+            let audioCodecStats = {};
+
+            // Size stats
+            let largestFile = { title: '', size: 0, sizeStr: '' };
+            let smallestFile = { title: '', size: Infinity, sizeStr: '' };
+            let fileSizes = [];
 
             plexData.libraries.forEach(lib => {
                 totalItems += lib.items.length;
@@ -487,8 +489,66 @@
                     } else {
                         totalWithoutSubs++;
                     }
+
+                    // Resolution stats
+                    if (item.resolution && item.resolution !== 'Unknown') {
+                        resolutionStats[item.resolution] = (resolutionStats[item.resolution] || 0) + 1;
+                    }
+
+                    // Video codec stats
+                    if (item.video_codec && item.video_codec !== 'Unknown') {
+                        videoCodecStats[item.video_codec] = (videoCodecStats[item.video_codec] || 0) + 1;
+                    }
+
+                    // Audio codec stats
+                    if (item.audio_codec && item.audio_codec !== 'Unknown') {
+                        audioCodecStats[item.audio_codec] = (audioCodecStats[item.audio_codec] || 0) + 1;
+                    }
+
+                    // Calculate total size and track largest/smallest
+                    if (item.filesize && item.filesize !== 'Unknown') {
+                        const match = item.filesize.match(/^([\d.]+)\s*(B|KB|MB|GB|TB)$/);
+                        if (match) {
+                            const value = parseFloat(match[1]);
+                            const unit = match[2];
+                            const multipliers = { 'B': 1, 'KB': 1024, 'MB': 1024*1024, 'GB': 1024*1024*1024, 'TB': 1024*1024*1024*1024 };
+                            const sizeInBytes = value * multipliers[unit];
+                            totalSize += sizeInBytes;
+                            fileSizes.push(sizeInBytes);
+
+                            if (sizeInBytes > largestFile.size) {
+                                largestFile = { title: item.title, size: sizeInBytes, sizeStr: item.filesize };
+                            }
+                            if (sizeInBytes < smallestFile.size && sizeInBytes > 0) {
+                                smallestFile = { title: item.title, size: sizeInBytes, sizeStr: item.filesize };
+                            }
+                        }
+                    }
                 });
             });
+
+            // Calculate average file size
+            const avgSize = fileSizes.length > 0 ? fileSizes.reduce((a, b) => a + b, 0) / fileSizes.length : 0;
+
+            // Get top 3 resolutions, codecs
+            const topResolutions = Object.entries(resolutionStats).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            const topVideoCodecs = Object.entries(videoCodecStats).sort((a, b) => b[1] - a[1]).slice(0, 3);
+            const topAudioCodecs = Object.entries(audioCodecStats).sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+            // Format bytes
+            const formatBytes = (bytes) => {
+                if (bytes === 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            };
+
+            // Format quality stats
+            const formatQualityList = (items) => {
+                if (items.length === 0) return 'N/A';
+                return items.map(([name, count]) => `${name} (${count})`).join(', ');
+            };
 
             section.innerHTML = `
                 <h2>Overview</h2>
@@ -525,12 +585,52 @@
                         <p>Total Items</p>
                     </div>
                     <div class="stat-card">
+                        <h3>${formatBytes(totalSize)}</h3>
+                        <p>Total Size</p>
+                    </div>
+                    <div class="stat-card">
                         <h3>${totalWithSubs}</h3>
                         <p>With Subtitles</p>
                     </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Quality & Technical</h3>
+                <div class="stats-grid">
                     <div class="stat-card">
-                        <h3>${totalWithoutSubs}</h3>
-                        <p>Without Subtitles</p>
+                        <h3 style="font-size: 1rem;">${formatQualityList(topResolutions)}</h3>
+                        <p>Top Resolutions</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="font-size: 1rem;">${formatQualityList(topVideoCodecs)}</h3>
+                        <p>Top Video Codecs</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="font-size: 1rem;">${formatQualityList(topAudioCodecs)}</h3>
+                        <p>Top Audio Codecs</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${Object.keys(resolutionStats).length}</h3>
+                        <p>Unique Resolutions</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Size & Duration</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>${formatBytes(avgSize)}</h3>
+                        <p>Average File Size</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="font-size: 1rem;">${largestFile.sizeStr || 'N/A'}</h3>
+                        <p>Largest File</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="font-size: 1rem;">${smallestFile.sizeStr !== '' ? smallestFile.sizeStr : 'N/A'}</h3>
+                        <p>Smallest File</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${fileSizes.length}</h3>
+                        <p>Total Files</p>
                     </div>
                 </div>
             `;
