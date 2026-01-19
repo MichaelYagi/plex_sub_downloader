@@ -1,43 +1,37 @@
 # Plex Info
 
-A comprehensive Python utility for analyzing your Plex library with detailed media information, quality analysis, statistics, and health checks.
+A comprehensive Python utility for analyzing your Plex library with detailed media information, quality analysis, statistics, and health checks. Features a beautiful web interface for viewing your library data.
 
 ## Features
 
-### 📊 **Library Analysis**
-- List all items with complete details including:
-  - File path and size
-  - Video quality (4K, 1080p, 720p, SD)
-  - Video codec (H.264, H.265/HEVC, AV1)
-  - Audio codec (AAC, DTS, Dolby Digital)
-  - Watch status and view counts
-  - Subtitle information (languages, formats, external/embedded)
-  - Direct Plex web URLs
+### 🌐 **Web Interface**
+- Beautiful, responsive web interface with embedded data
+- No server required - just open the HTML file in your browser
+- Interactive navigation sidebar
+- Filter and search within libraries
+- Mobile-friendly design
 
-### 🔍 **Quality Analysis** (`--quality`)
-- Resolution distribution (4K, 1080p, 720p, SD)
-- Video codec distribution
-- Audio codec distribution
-- Percentage breakdowns
+### 📊 **Comprehensive Overview Dashboard**
+- **Plex Server Info** - Server name, version, platform details
+- **Library Statistics** - Total items, size, subtitle coverage
+- **Quality & Technical** - Top resolutions, video/audio codecs, format distribution
+- **Size & Duration** - Average, largest, smallest file sizes
 
-### 📈 **Statistics** (`--stats`)
-- Watch statistics (watched vs unwatched)
-- Content by year (top 10)
-- Content by genre (top 10)
-- Content ratings breakdown
-- Total library size and runtime
+### 📚 **Library Support**
+- Movies
+- TV Shows  
+- Music
+- Music Videos
+- All other Plex library types
 
-### 🏥 **Health Checks** (`--health`)
-- Missing metadata (no summary/year)
-- Low quality content (SD only)
-- Missing subtitles
-- Very large files (>50GB)
-- Never watched items
-
-### 💻 **System Information** (`--system`)
-- Plex server details (version, platform)
-- Library statistics (item counts, total sizes)
-- Local client information
+### 🔍 **Detailed Media Information**
+- File path and size
+- Video quality (4K, 1080p, 720p, SD)
+- Video codec (H.264, H.265/HEVC, AV1)
+- Audio codec (AAC, DTS, Dolby Digital)
+- Watch status and view counts
+- Subtitle information (languages, formats, external/embedded)
+- Direct Plex web URLs
 
 ## Requirements
 
@@ -58,7 +52,6 @@ Dependencies:
 - `plexapi>=4.15.0` - Plex API client
 - `python-dotenv>=1.0.0` - Environment variable management
 - `psutil>=5.9.0` - System information
-- `gputil` (optional) - GPU information
 
 3. Create a `.env` file in the same directory:
 ```env
@@ -77,323 +70,206 @@ PLEX_TOKEN=your_plex_token_here
 
 ## Usage
 
-### Web App Interface (Recommended)
+### Web Interface (Recommended)
 
-Plex Info includes a web-based interface for easy interaction.
-
-**Start the web app:**
+Generate a standalone HTML file with all your library data embedded:
 
 ```bash
-python server.py
+python plex_info.py --export-json plex_data.html
 ```
 
-**Access the web app:**
+This will:
+1. Scan **ALL** your Plex libraries (Movies, TV Shows, Music, Music Videos, etc.)
+2. Collect complete media information for every item
+3. Generate a standalone HTML file with embedded data
+4. Automatically open it in your default browser
 
-Open your browser and navigate to: `http://localhost:9924`
+**To update data:** Simply run the command again to regenerate with fresh data.
 
-The web app provides:
-- ✅ Clean, mobile-responsive interface
-- ✅ Navigation sidebar
-- ✅ Interactive buttons to run all commands
-- ✅ Live output display
-- ✅ Library selection dropdowns
-- ✅ No command-line knowledge needed
-
-**Keep it running:**
-
-The server will continue running until you stop it with `Ctrl+C`. You can access the web app anytime by navigating to `http://localhost:9924` in your browser.
-
-**Run in background (optional):**
-
-To keep the web app running in the background:
-
-```bash
-# Linux/macOS
-nohup python server.py > plex_info.log 2>&1 &
-
-# Windows (PowerShell)
-Start-Process python -ArgumentList "server.py" -WindowStyle Hidden
-```
+The generated HTML file:
+- ✅ Works offline - no server needed
+- ✅ Contains all your library data embedded
+- ✅ Opens directly in any browser (double-click or file://)
+- ✅ Mobile-responsive design
+- ✅ Interactive filtering and search per library
+- ✅ Completely standalone - no external dependencies
 
 ### Command Line Interface
 
-### List All Available Libraries
-
-Show all libraries on your Plex server:
+#### List All Available Libraries
 
 ```bash
 python plex_info.py
 ```
 
-### List Library Items
-
-Show all items in a library with complete details:
+#### List Library Items
 
 ```bash
-# Movies
 python plex_info.py --library "Movies"
-
-# TV Shows (shows episodes)
 python plex_info.py --library "TV Shows"
+python plex_info.py --library "Music"
 ```
 
-Each item displays:
-- Title and rating key
-- File path on server
-- Plex web URL
-- File size
-- Video quality and codecs
-- Watch status
-- Subtitle details
-
-### List Only Missing Subtitles
-
-Filter to show only items without subtitles:
+#### Find Items Missing Subtitles
 
 ```bash
 python plex_info.py --library "Movies" --list-missing
 ```
 
-### Quality Analysis
-
-Analyze video quality and codec distribution:
+#### Quality Analysis
 
 ```bash
 python plex_info.py --library "Movies" --quality
 ```
 
-Shows:
-- Resolution distribution (4K: 38 (9.1%), 1080p: 245 (58.9%), etc.)
-- Video codec distribution (H264, HEVC, AV1)
-- Audio codec distribution (AAC, DTS, Dolby Digital)
+Shows resolution and codec distribution with percentages.
 
-### Library Statistics
-
-Get comprehensive library statistics:
+#### Library Statistics
 
 ```bash
 python plex_info.py --library "Movies" --stats
 ```
 
-Shows:
-- Total items, size, and runtime
-- Watched vs unwatched counts
-- Top 10 years
-- Top 10 genres
-- Content rating breakdown
+Shows watch stats, top genres, years, content ratings.
 
-### Health Check
-
-Identify potential issues in your library:
+#### Health Check
 
 ```bash
 python plex_info.py --library "Movies" --health
 ```
 
-Identifies:
-- Items with missing metadata
-- Low quality (SD) content
-- Items without subtitles
-- Very large files (>50GB)
-- Never watched content
-
-### System Information
-
-View Plex server and library information:
-
-```bash
-python plex_info.py --system
-```
-
-Shows:
-- Remote Plex server details
-- Library statistics (counts and total sizes)
-- Local client information
-
-### Advanced Options
-
-Filter by media type:
-```bash
-python plex_info.py --library "Movies" --type movie
-```
-
-Save output to custom file:
-```bash
-python plex_info.py --library "Movies" --output my_report.txt
-```
-
-Enable verbose logging:
-```bash
-python plex_info.py --library "Movies" --verbose
-```
+Identifies missing metadata, SD content, missing subtitles, large files, never watched items.
 
 ## Command Line Flags
 
 | Flag | Description |
 |------|-------------|
-| `--library "NAME"` | Library name to analyze (e.g., "Movies", "TV Shows") |
+| `--export-json FILE` | Generate standalone HTML with embedded library data |
+| `--library "NAME"` | Library name to analyze |
 | `--list-missing` | Show only items missing subtitles |
 | `--quality` | Analyze video quality and codec distribution |
-| `--stats` | Show general statistics (watch counts, genres, years) |
+| `--stats` | Show general statistics |
 | `--health` | Check library health and identify issues |
-| `--system` | Display Plex server and library information |
+| `--system` | Display Plex server information |
 | `--type {movie\|episode}` | Filter by media type |
-| `--output FILE` | Output file for report (default: library_subtitles.txt) |
+| `--output FILE` | Output file for CLI reports |
 | `--verbose` | Enable verbose logging |
-| `--help` | Show help message with all available options |
+| `--help` | Show help message |
+
+## Web Interface Features
+
+### Overview Dashboard
+- **Plex Server** - Name, version, platform, OS version
+- **Library Statistics** - Total libraries, items, size, subtitle coverage
+- **Quality & Technical** 
+  - Top 3 resolutions with counts
+  - Top 3 video codecs with counts
+  - Top 3 audio codecs with counts
+  - Unique resolution count
+- **Size & Duration**
+  - Average file size
+  - Largest file size
+  - Smallest file size
+  - Total files count
+
+### Per-Library Views
+- Complete item listings with all metadata
+- Filter by "missing subtitles only"
+- Search functionality
+- View counts and watch status
+- Quality and codec information
+- Direct links to items in Plex web interface
+
+### Navigation
+- Sidebar with all libraries
+- Click to jump to any library section
+- Mobile-responsive hamburger menu
 
 ## Example Workflows
 
-### Complete Library Audit
+### Generate Interactive Web Interface
 ```bash
-# 1. List all libraries
+# Scan all libraries and generate HTML
+python plex_info.py --export-json plex_data.html
+
+# Opens automatically in browser
+# Share the HTML file or view it anytime
+```
+
+### Update Library Data
+```bash
+# Just run the export command again
+python plex_info.py --export-json plex_data.html
+
+# Regenerates with latest data
+# Opens automatically when done
+```
+
+### Command Line Analysis
+```bash
+# List all libraries
 python plex_info.py
 
-# 2. Check quality distribution
+# Check specific library quality
 python plex_info.py --library "Movies" --quality
 
-# 3. Get detailed statistics
-python plex_info.py --library "Movies" --stats
+# Find content missing subtitles
+python plex_info.py --library "TV Shows" --list-missing
 
-# 4. Run health check
+# Run health check
 python plex_info.py --library "Movies" --health
-
-# 5. Find items missing subtitles
-python plex_info.py --library "Movies" --list-missing
 ```
-
-### Find Content to Upgrade
-```bash
-# Find SD content that could be upgraded
-python plex_info.py --library "Movies" --health
-
-# See quality breakdown
-python plex_info.py --library "Movies" --quality
-```
-
-### Track Watch Progress
-```bash
-# See what hasn't been watched
-python plex_info.py --library "Movies" --stats
-
-# Get detailed view with watch status
-python plex_info.py --library "Movies"
-```
-
-### Manage Storage
-```bash
-# Find very large files
-python plex_info.py --library "Movies" --health
-
-# See total library size
-python plex_info.py --system
-```
-
-## Example Output
-
-### Library Listing
-```
-1. Captain Marvel
-   Rating Key: 644
-   File Path: /media/Movies/Captain Marvel (2019)/Captain Marvel (2019) - 1080p.mkv
-   URL: http://192.168.0.199:32400/web/index.html#!/server/.../details?key=/library/metadata/644
-   File Size: 15.42 GB
-   Quality: 1080p | Video: H264 | Audio: AAC
-   Watched: ✓ Yes (Views: 3)
-   Last Viewed: 2025-12-15 20:30:45
-   Subtitles: YES
-   Languages: EN, ES
-   Streams:
-     • English (EN) - srt - English [EMBEDDED]
-     • Spanish (ES) - srt - Spanish (Latin America) [EXTERNAL]
-```
-
-### Quality Analysis
-```
-RESOLUTION DISTRIBUTION
---------------------------------------------------------------------------------
-1080p          :   245 (58.9%)
-720p           :   123 (29.6%)
-4K             :    38 ( 9.1%)
-SD             :    10 ( 2.4%)
-
-VIDEO CODEC DISTRIBUTION
---------------------------------------------------------------------------------
-H264           :   312 (75.0%)
-HEVC           :    94 (22.6%)
-AV1            :    10 ( 2.4%)
-```
-
-### Health Check
-```
-LIBRARY HEALTH CHECK - Movies
-================================================================================
-
-MISSING SUBTITLES: 70 items
---------------------------------------------------------------------------------
-1. Avatar
-2. The Batman
-3. Inception
-... and 67 more
-
-NEVER WATCHED: 142 items
---------------------------------------------------------------------------------
-1. Movie Title 1
-2. Movie Title 2
-... and 140 more
-```
-
-## Troubleshooting
-
-### "Could not find library"
-- Ensure the library name matches exactly (case-sensitive)
-- Use quotes around library names with spaces: `--library "TV Shows"`
-- Run `python plex_info.py` without arguments to see available libraries
-
-### "PLEX_TOKEN is required"
-- Create a `.env` file with your Plex token
-- Or pass it directly: `--plex-token YOUR_TOKEN`
-
-### Connection errors
-- Verify your Plex server is running
-- Check the PLEX_URL in your `.env` file
-- Ensure you can access Plex Web from the same machine
-
-### Slow performance
-- Large libraries (1000+ items) may take a few minutes to scan
-- Use `--verbose` to see progress
-- Quality/stats/health checks are slower as they analyze each item
 
 ## File Structure
 
 ```
 .
-├── plex_info.py           # Main CLI script
-├── server.py              # Web app server
-├── index.html             # Web app interface
+├── plex_info.py           # Main script
+├── index.html             # Web interface template  
 ├── requirements.txt       # Python dependencies
 ├── .env                   # Your Plex credentials (create this)
-└── README.md             # This file
+├── README.md              # This file
+└── plex_data.html         # Generated output (after running --export-json)
 ```
 
-## Output Files
+## Troubleshooting
 
-Reports are saved to the current directory:
-- `library_subtitles.txt` - Default output file
-- Custom filename via `--output` flag
+### "index.html template not found"
+- Make sure `index.html` is in the same directory as `plex_info.py`
+- Both files are required for web interface generation
 
-Reports contain all displayed information for later reference.
+### "Could not find library"
+- Library names are case-sensitive
+- Use quotes: `--library "TV Shows"`
+- Run `python plex_info.py` to see all available libraries
+
+### "PLEX_TOKEN is required"
+- Create a `.env` file with your Plex token
+- Or pass directly: `--plex-token YOUR_TOKEN`
+
+### Connection errors
+- Verify Plex server is running
+- Check PLEX_URL in `.env` file
+- Ensure you can access Plex Web from same machine
+
+### Slow performance
+- Large libraries (1000+ items) take a few minutes
+- Use `--verbose` to see progress
+- Music libraries with many tracks take longer
+
+### Browser not opening automatically (WSL2)
+- Script detects WSL2 and converts paths for Windows
+- If auto-open fails, manually open `plex_data.html`
+- File works the same either way
 
 ## Notes
 
-- The tool is **read-only** - it never modifies your Plex library
-- **Web app** runs on port 9924 by default (configurable in `server.py`)
-- Web app uses only Python standard library (no Flask/FastAPI needed)
-- Access the web app anytime at `http://localhost:9924` while server is running
-- System info shows local client stats, not remote Plex server hardware
-- File paths are from the Plex server's perspective
+- **Read-only** - Never modifies your Plex library
+- Scans **ALL library types** - Movies, TV Shows, Music, Music Videos, etc.
+- Music tracks show as: Artist - Album - Title
+- File paths are from Plex server's perspective
 - URLs open items directly in Plex web interface
-- Episode counts are shown for TV libraries, not show counts
+- Generated HTML is completely portable - share it, archive it, view offline
 
 ## License
 
