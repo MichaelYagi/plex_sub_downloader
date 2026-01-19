@@ -345,8 +345,6 @@
             <h1>Plex Info</h1>
 
             <div class="server-info" id="server-info">
-                <p><strong>Server:</strong> <span id="server-name">-</span></p>
-                <p><strong>Version:</strong> <span id="server-version">-</span></p>
                 <p><strong>Updated:</strong> <span id="data-timestamp">-</span></p>
             </div>
 
@@ -355,8 +353,6 @@
                     <li><a onclick="showSection('overview')">Overview</a></li>
                 </ul>
             </nav>
-
-            <button class="refresh-btn" onclick="location.reload()">🔄 Refresh Data</button>
         </aside>
 
         <!-- Main Content -->
@@ -437,8 +433,6 @@
 
         // Populate server info
         function populateServerInfo() {
-            document.getElementById('server-name').textContent = plexData.server.name || '-';
-            document.getElementById('server-version').textContent = plexData.server.version || '-';
             document.getElementById('data-timestamp').textContent = plexData.timestamp || '-';
         }
 
@@ -500,6 +494,27 @@
                 <h2>Overview</h2>
                 <p>Plex library data as of <strong>${plexData.timestamp}</strong></p>
 
+                <h3>Plex Server</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 style="font-size: 1.2rem;">${plexData.server.name || 'Unknown'}</h3>
+                        <p>Server Name</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="font-size: 1.2rem;">${plexData.server.version || 'Unknown'}</h3>
+                        <p>Plex Version</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="font-size: 1.2rem;">${plexData.server.platform || 'Unknown'}</h3>
+                        <p>Platform</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 style="font-size: 1.2rem;">${plexData.server.platform_version || 'Unknown'}</h3>
+                        <p>OS Version</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 30px;">Library Statistics</h3>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <h3>${plexData.libraries.length}</h3>

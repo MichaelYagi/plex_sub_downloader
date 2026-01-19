@@ -971,7 +971,8 @@ For more information, see the README.md file.
                 'server': {
                     'name': tools.plex.friendlyName,
                     'version': tools.plex.version,
-                    'platform': tools.plex.platform
+                    'platform': tools.plex.platform,
+                    'platform_version': tools.plex.platformVersion
                 },
                 'libraries': []
             }
